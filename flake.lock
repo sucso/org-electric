@@ -7,11 +7,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1793974387,
-        "narHash": "sha256-SdYFi3Jxm+aMNLLH/SbXzl0p6TJeAQ4MLxXkoZYiuhg=",
+        "lastModified": 1793990724,
+        "narHash": "sha256-c/B35SnVoVTaM2iY9Jd1+2Ngt4QljPZtUObPTR5Bl88=",
         "owner": "sucso",
         "repo": "emacs-package-flake",
-        "rev": "2e76f3e4452bbe0ab9fea6d7956adb8c38ca7693",
+        "rev": "9e7f0b75bebc8fbd6eda9a9ee1164ca294106bf5",
         "type": "github"
       },
       "original": {
@@ -41,7 +41,7 @@
     "fromElisp": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-wuvMipJRjW6riGn4HZuag8h4p0J6bA9fG8Fjt9NGAUU=",
+        "narHash": "sha256-ic8yzPH2aX1fkDEYbpN1Xr0jjYQ8tFjKwmJ8CObn/wk=",
         "type": "file",
         "url": "https://github.com/talyz/fromElisp"
       },
