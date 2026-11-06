@@ -1,0 +1,31 @@
+* org-electric - Electric pairs in Org buffers
+
+# Introduction and capabilities.
+The ~org-electric~ package provides ~electric-pair-mode~ behaviour for Org emphasis markers. Its implementation involves rebinding the relevant keys (=*/=~+_=) to wrappers around ~org-self-insert-command~. Concretely, ~org-electric~ lets one perform the following operations.
+- Insert pairs of emphasis markers by tapping their key once.
+- Mark a region and surround it with an emphasis marker by typing its character.
+- Delete content-less (adjacent) emphasis pairs (e.g. =**=) by backspacing when the cursor is in the middle of them.
+- Delete pairs of emphasis markers by calling ~org-electric-delete-pair~.
+All operations occur only when the cursor's context is such that the [[https://orgmode.org/worg/org-syntax.html][Org syntax specification]] allows it: for example, automatic pair insertion is inhibited inside code blocks.
+
+# Installation and enabling.
+To enable ~org-electric~ in all Org buffers, install the ~org-electric~ package through your favourite Emacs package manager and add ~org-electric-mode~ to ~org-mode-hook~: src_elisp{(add-hook 'org-mode-hook #'org-electric-mode)}. This also automatically remaps ~delete-pair~ to ~org-electric-delete-pair~ and, by default, the ~SPC~ key to ~org-electric-self-insert-space~. (To modify this last behaviour, see ~org-electric-rebind-space~.)
+
+# Tests.
+~org-electric~ comes with tests; they are defined in =org-electric-test.el=. To run them in an unconfigured Emacs instance, one may use the shell command src_bash{emacs --batch -l org-electric.el -l org-electric-test.el -f ert-run-tests-batch-and-exit}.
+
+* Questions and answers
+
+#+begin_quote
+Why not rely on ~electric-pair-mode~ for the implementation?
+#+end_quote
+
++I did not know about ~electric-pair-text-syntax-table~ and thought I had to change ~org-mode~'s syntax table to pursue the approach.+ ~electric-pair-inhibit-predicate~ and ~electric-pair-skip-self~ trigger after character insertion, which is annoying. Consider, for instance, the line src_org{foo |bar *baz*}, where "|" denotes the position of the cursor. An hypothetical ~org-electric~ user wants to turn it into src_org{foo *pre*-|bar *baz*}, so they begin by typing =*=; the new line is now src_org{foo *|bar *baz*}. Problem: this turns =bar= into bold --- at least temporarily, until another asterisk is inserted into the buffer. Do we automatically insert another? Let's see. Calling ~org-element-context~ now (through ~electric-pair-inhibit-predicate~) would yield a bold object. Org disallows nesting the emphasis markers of the same type into themselves (e.g. bold into bold), so from the codes' perspective it makes sense to /not/ insert a second asterisk into the buffer: the cursor is already inside a bold object. This is not, I think, the behaviour the user expects in this situation: I think they want a second asterisk. The solution ~org-electric~ adopts is to wrap ~org-self-insert-command~, which allows it to perform these checks /before/ the first asterisk is inserted into the buffer, when the cursor is not inside by any bold object.
+
+#+begin_quote
+Does ~org-electric~ integrate properly with other packages that rebind keys that insert emphasis markers?
+#+end_quote
+
+Maybe, maybe not. I know that ~org-cdlatex~ does this (both ~org-electric-mode~ and ~org-cdlatex-mode~ rebind =_=), and ~org-electric~ should work with it. What ~org-electric~ definitely does /not/ play well with are packages that implement modal editing such as ~evil~ and ~meow~. (But I doubt those packages need an ~org-electric~? I know ~evil~ has ~evil-surround~, and ~meow~ probably has something similar.)
+
+The reason ~org-electric~ works with ~org-cdlatex~ is that both fallback to the (self-insert-)command that was previously bound quite smartly[fn::The smartness is, of course, not mine, but of the authors of ~org-cdlatex~: I merely +copied+ took inspiration! :P]; see ~org-cdlatex-underscore-caret~ and/or ~org-electric--self-insert-fallback~ for examples of this.
